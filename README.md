@@ -1,12 +1,13 @@
 # first-game
 Game I am working on -- also first repository!
 
-#jewel thief - break window from outside, pick the right room (guard in wrong ones)
-#find the hidden safe under the desk - break the code
-#fight guards and run out
-from sys import exit
-from random import randint
-import my_game_opening
+ #jewel thief - break window from outside, pick the right room (guard in wrong ones)
+ #find the hidden safe under the desk - break the code
+ #fight guards and run out
+ 
+ from sys import exit
+ from random import randint
+ import my_game_opening
 
 def Compass(object):
 	#lists all the rooms in flow order
