@@ -1,0 +1,19 @@
+#i want this to run at the start of the game
+#and sprinkle the answers through out the game
+
+def Opening(object):	
+	print "\nYou are an international art theif in front of the Louvre."
+	print "You've come here with one mission and one mission only - "
+	print "to steal the Mona Lisa."
+	print "You are standing in the back of the Louvre, behind you is a pond."
+	print "In front of you is the tall, glass Louvre."
+	
+def Description(object):
+	print "Please tell us a little about yourself before we begin."
+	print "Are you male or female?"
+	sex = raw_input("> ")
+	print "Hair color?"
+	hair = raw_input("> ")
+	print "Age?"
+	age = raw_input("> ")
+	print "Alright, so you are a % year old % with % hair. Got it." % age, sex, hair
