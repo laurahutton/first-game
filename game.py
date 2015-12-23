@@ -23,7 +23,9 @@ class Map(object):
         return self.rooms[self.location].about
 
     def possible_exits(self):
-        return [1]
+        if self.location+1 >= len(self.rooms):
+            return []
+        return [self.location+1]
 
     def move_to(self, next_room):
         self.location = next_room

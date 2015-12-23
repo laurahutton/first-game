@@ -17,16 +17,20 @@ class TestGame(unittest.TestCase):
         self.assertEqual(game.player, self.player)
         self.assertEqual(game.a_map, a_map)
 
-    def test_start_location(self):
+    def test_room_traversal(self):
         start_room = OutsideRoom()
         end_room = HallwayRoom()
         a_map = Map(rooms=[start_room, end_room])
         self.assertEqual(a_map.describe_room(), start_room.about)
+
         possible_exits = a_map.possible_exits()
         new_room = a_map.move_to(possible_exits[0])
         self.assertIsInstance(new_room, Room)
         self.assertEqual(new_room.about, end_room.about)
         self.assertEqual(a_map.describe_room(), end_room.about)
+
+        possible_exits = a_map.possible_exits()
+        self.assertEqual(possible_exits, [])
 
 class TestPlayer(unittest.TestCase):
     def test_player(self):
