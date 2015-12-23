@@ -78,12 +78,20 @@ class TestRooms(unittest.TestCase):
         self.assertGreater(hallway.about, 0)
         self.assertIsInstance(hallway.items, list)
 
+    def test_hallway_guard(self):
+        hallway = HallwayRoom()
+        guard = Guard('Guard 1')
+        before = len(hallway.items)
+        self.assertNotIn(guard, hallway.items)
+        hallway.add_item(guard)
+        self.assertIn(guard, hallway.items)
+
 class TestItems(unittest.TestCase):
     def test_item_default_desc(self):
         item = Item('rock')
         self.assertEqual(item.name, 'rock')
         self.assertEqual(item.desc, "It's just a rock...")
-        
+
     def test_item_custom_desc(self):
         item = Item('', 'xyzzy')
         self.assertEqual(item.desc, 'xyzzy')

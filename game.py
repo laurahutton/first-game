@@ -6,16 +6,23 @@ class Game(object):
     def __init__(self, player, a_map):
         self.player = player
         self.a_map = a_map
-        
+
+    def play(self):
+        """event loop"""
+        while True:
+            print self.a_map.describe_room()
+            action = raw_input("> ")
+            a_map.move_to(1)
+
 class Player(object):
     def __init__(self, gender, age, hair_color):
         self.gender = gender
-        self.age = age 
+        self.age = age
         self.hair_color = hair_color
 
 class Map(object):
     def __init__(self, rooms):
-        self.rooms = rooms 
+        self.rooms = rooms
         self.start = 0
         self.location = self.start
 
@@ -35,7 +42,7 @@ class Room(object):
     def __init__(self):
         self.about = ""
         self.items = []
-    
+
     def add_item(self, item):
         self.items.append(item)
 
@@ -43,16 +50,16 @@ class Room(object):
         if not self.items:
             return ""
         return  "Items at this location:\n%s " % '\n'.join('%s' % i for i in self.items)
-    
+
 class OutsideRoom(Room):
     def __init__(self):
-        super(OutsideRoom, self).__init__() 
+        super(OutsideRoom, self).__init__()
         self.about = "You are standing outside the museum with only a rock, a grappling hook, and a gun."
 
 class HallwayRoom(Room):
     def __init__(self):
+        super(HallwayRoom, self).__init__()
         self.about = "You have landed in a hallway with beautiful art hanging on the walls. But you have your eyes on a bigger prize."
-        self.items = []
 
 class Item(object):
     def __init__(self, name, desc=None):
@@ -74,3 +81,10 @@ class Guard(Item):
 
     def say(self):
         return self.commands[0]
+
+
+if __name__ == "__main__":
+    a_map =  Map(rooms=[OutsideRoom(), HallwayRoom()])
+    player = Player(gender='female', age='74', hair_color='red')
+    game = Game(player, a_map)
+    game.play()
