@@ -27,7 +27,8 @@ class Map(object):
         self.location = self.start
 
     def describe_room(self):
-        return self.rooms[self.location].about
+        room = self.rooms[self.location]
+        return room.name + '\n' + room.about + '\n\n' + room.show_items()
 
     def possible_exits(self):
         if self.location+1 >= len(self.rooms):
@@ -41,6 +42,7 @@ class Map(object):
 class Room(object):
     def __init__(self):
         self.about = ""
+        self.name = self.__class__.__name__.replace("Room", "") or "Where am I?"
         self.items = []
 
     def add_item(self, item):
@@ -84,7 +86,10 @@ class Guard(Item):
 
 
 if __name__ == "__main__":
-    a_map =  Map(rooms=[OutsideRoom(), HallwayRoom()])
+    hallway = HallwayRoom()
+    guard = Guard('Guard 1')
+    hallway.add_item(guard)
+    a_map =  Map(rooms=[OutsideRoom(), hallway])
     player = Player(gender='female', age='74', hair_color='red')
     game = Game(player, a_map)
     game.play()

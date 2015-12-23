@@ -20,14 +20,18 @@ class TestGame(unittest.TestCase):
     def test_room_traversal(self):
         start_room = OutsideRoom()
         end_room = HallwayRoom()
+        end_room.add_item(Item('feather'))
         a_map = Map(rooms=[start_room, end_room])
-        self.assertEqual(a_map.describe_room(), start_room.about)
+        self.assertIn(start_room.about, a_map.describe_room())
+
+        self.assertTrue(a_map.describe_room().startswith(start_room.name))
 
         possible_exits = a_map.possible_exits()
         new_room = a_map.move_to(possible_exits[0])
         self.assertIsInstance(new_room, Room)
         self.assertEqual(new_room.about, end_room.about)
-        self.assertEqual(a_map.describe_room(), end_room.about)
+        self.assertIn(end_room.about, a_map.describe_room())
+        self.assertIn('feather', a_map.describe_room())
 
         possible_exits = a_map.possible_exits()
         self.assertEqual(possible_exits, [])
