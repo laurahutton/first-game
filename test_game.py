@@ -98,6 +98,16 @@ class TestRooms(unittest.TestCase):
         self.assertEqual(len(hallway.items), before+1)
         self.assertIn(guard, hallway.items)
 
+    def test_describe(self):
+        hallway = HallwayRoom()
+        self.assertIn(hallway.about, hallway.describe())
+
+        # after the first visit, the description is omitted
+        self.assertNotIn(hallway.about, hallway.describe())
+
+        # full description can be shown again if requested
+        self.assertIn(hallway.about, hallway.describe(verbose=True))
+
 
 class TestItems(unittest.TestCase):
     def test_item_default_desc(self):

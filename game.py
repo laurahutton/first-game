@@ -29,9 +29,9 @@ class Map(object):
         self.start = 0
         self.location = self.start
 
-    def describe_room(self):
+    def describe_room(self, verbose=False):
         room = self.rooms[self.location]
-        return room.name + '\n' + room.about + '\n\n' + room.show_items()
+        return room.describe(verbose)
 
     def possible_exits(self):
         if self.location+1 >= len(self.rooms):
@@ -52,6 +52,10 @@ class Room(object):
                          " am I doing in this handbasket?")
         self.items = []
 
+        # the first time a room is visited, show the full description.
+        # subsequent visits only show the room name and any items.
+        self.first_time = True
+
     def add_item(self, item):
         self.items.append(item)
 
@@ -61,6 +65,13 @@ class Room(object):
         return  "Items at this location:\n%s " % '\n'.join(
                 '%s' % i for i in self.items
                 )
+
+    def describe(self, verbose=False):
+        if self.first_time or verbose:
+            self.first_time = False
+            return self.name + '\n' + self.about + '\n\n' + self.show_items()
+        else:
+            return self.name + '\n' + self.show_items()
 
 
 class OutsideRoom(Room):
