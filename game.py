@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from utils import a_or_an
 
+
 class Game(object):
     def __init__(self, player, a_map):
         self.player = player
@@ -11,14 +12,16 @@ class Game(object):
         """event loop"""
         while True:
             print self.a_map.describe_room()
-            action = raw_input("> ")
+            raw_input("> ")
             a_map.move_to(1)
+
 
 class Player(object):
     def __init__(self, gender, age, hair_color):
         self.gender = gender
         self.age = age
         self.hair_color = hair_color
+
 
 class Map(object):
     def __init__(self, rooms):
@@ -39,10 +42,14 @@ class Map(object):
         self.location = next_room
         return self.rooms[self.location]
 
+
 class Room(object):
     def __init__(self):
         self.about = ""
-        self.name = self.__class__.__name__.replace("Room", "") or "Where am I?"
+        self.name = self.__class__.__name__.replace("Room", "")
+        if not self.name:
+            self.name = ("Where am I? ...and what"
+                         " am I doing in this handbasket?")
         self.items = []
 
     def add_item(self, item):
@@ -51,17 +58,25 @@ class Room(object):
     def show_items(self):
         if not self.items:
             return ""
-        return  "Items at this location:\n%s " % '\n'.join('%s' % i for i in self.items)
+        return  "Items at this location:\n%s " % '\n'.join(
+                '%s' % i for i in self.items
+                )
+
 
 class OutsideRoom(Room):
     def __init__(self):
         super(OutsideRoom, self).__init__()
-        self.about = "You are standing outside the museum with only a rock, a grappling hook, and a gun."
+        self.about = ("You are standing outside the museum with"
+                      " only a rock, a grappling hook, and a gun.")
+
 
 class HallwayRoom(Room):
     def __init__(self):
         super(HallwayRoom, self).__init__()
-        self.about = "You have landed in a hallway with beautiful art hanging on the walls. But you have your eyes on a bigger prize."
+        self.about = ("You have landed in a hallway with beautiful"
+                      " art hanging on the walls. But you have your"
+                      " eyes on a bigger prize.")
+
 
 class Item(object):
     def __init__(self, name, desc=None):
@@ -75,6 +90,7 @@ class Item(object):
 
     def say(self):
         return '...'
+
 
 class Guard(Item):
     def __init__(self, name, desc=None):

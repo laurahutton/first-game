@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import unittest
-from game import Game, Player, Map, OutsideRoom, Item, Guard, HallwayRoom, Room
+
+from game import (
+        Game, Player, Map, OutsideRoom, Item, Guard, HallwayRoom, Room
+        )
+
 
 class TestGame(unittest.TestCase):
     def setUp(self):
@@ -36,6 +40,7 @@ class TestGame(unittest.TestCase):
         possible_exits = a_map.possible_exits()
         self.assertEqual(possible_exits, [])
 
+
 class TestPlayer(unittest.TestCase):
     def test_player(self):
         player = Player(gender='male', age='10', hair_color='blue')
@@ -43,12 +48,14 @@ class TestPlayer(unittest.TestCase):
         self.assertEqual(player.age, '10')
         self.assertEqual(player.hair_color, 'blue')
 
+
 class TestMap(unittest.TestCase):
     def test_map(self):
         a_map = Map(rooms=[])
         self.assertIsInstance(a_map.rooms, list)
         self.assertEqual(a_map.start, 0)
         self.assertEqual(a_map.location, a_map.start)
+
 
 class TestRooms(unittest.TestCase):
     def test_outside(self):
@@ -90,6 +97,7 @@ class TestRooms(unittest.TestCase):
         hallway.add_item(guard)
         self.assertEqual(len(hallway.items), before+1)
         self.assertIn(guard, hallway.items)
+
 
 class TestItems(unittest.TestCase):
     def test_item_default_desc(self):
