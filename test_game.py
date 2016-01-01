@@ -88,6 +88,7 @@ class TestRooms(unittest.TestCase):
         before = len(hallway.items)
         self.assertNotIn(guard, hallway.items)
         hallway.add_item(guard)
+        self.assertEqual(len(hallway.items), before+1)
         self.assertIn(guard, hallway.items)
 
 class TestItems(unittest.TestCase):
