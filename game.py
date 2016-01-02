@@ -81,18 +81,18 @@ class Room(object):
         # dict of supported directions. key is the canonical direction
         # name and the value is a list of aliases for that direction.
         self.valid_directions = {
-                'north':     ['north',      'n'],
-                'northeast': ['northeast', 'ne'],
-                'northwest': ['northwest', 'nw'],
-                'south':     ['south',      's'],
-                'southeast': ['southeast', 'se'],
-                'southwest': ['southwest', 'sw'],
-                'east':      ['east',       'e'],
-                'west':      ['west',       'w'],
-                'up':        ['up',         'u'],
-                'down':      ['down',       'd'],
-                'in':        ['in',    'inside'],
-                'out':       ['out',  'outside'],
+            'north':     ['north',      'n'],
+            'northeast': ['northeast', 'ne'],
+            'northwest': ['northwest', 'nw'],
+            'south':     ['south',      's'],
+            'southeast': ['southeast', 'se'],
+            'southwest': ['southwest', 'sw'],
+            'east':      ['east',       'e'],
+            'west':      ['west',       'w'],
+            'up':        ['up',         'u'],
+            'down':      ['down',       'd'],
+            'in':        ['in',    'inside'],
+            'out':       ['out',  'outside'],
             }
 
         # self.exits is a dict where the key is the direction of the
