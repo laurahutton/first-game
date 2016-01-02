@@ -10,7 +10,7 @@ class Game(object):
 
         if not self.player.location:
             if self.rooms:
-                self.player.location = self.rooms[0]
+                self.player.set_location(self.rooms[0])
 
     def play(self):
         """event loop"""
