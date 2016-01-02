@@ -51,6 +51,33 @@ class TestPlayer(unittest.TestCase):
         self.assertEqual(player.age, '10')
         self.assertEqual(player.hair_color, 'blue')
 
+    def test_has_moved(self):
+        player = Player(gender='male', age='10', hair_color='blue')
+
+        # initially, the player starts off by having been "moved" to a
+        # new location
+        self.assertTrue(player.moved)
+
+        self.assertTrue(player.has_moved())
+
+        # after checking for a move, the flag is reset
+        self.assertFalse(player.moved)
+
+    def test_set_location(self):
+        """
+        test that set_location() sets the location and the moved flag
+        """
+        hallway = HallwayRoom()
+        player = Player(gender='male', age='10', hair_color='blue')
+
+        # the player is initiated without a location
+        self.assertIsNone(player.location)
+
+        player.set_location(hallway)
+
+        self.assertEqual(player.location, hallway)
+        self.assertTrue(player.moved)
+
 
 class TestMap(unittest.TestCase):
     def test_map(self):

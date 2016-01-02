@@ -8,19 +8,42 @@ class Game(object):
         self.player = player
         self.a_map = a_map
 
+        if not self.player.location:
+            if self.a_map.rooms:
+                self.player.location = self.a_map.rooms[0]
+
     def play(self):
         """event loop"""
         while True:
-            print self.a_map.describe_room()
+            room = self.player.location
+            if self.player.has_moved():
+                print room.describe()
 
             try:
                 action = raw_input("> ")
             except (EOFError, KeyboardInterrupt):
-                print "\nGoodbye!\n"
-                raise SystemExit()
+                self.end()
+                break
 
-            if a_map.move(action) is None:
+            if not action:
+                continue
+
+            if action == "quit" or action == "q":
+                self.end()
+                break
+
+            if action == "look" or action == "l":
+                print room.describe(verbose=True)
+                continue
+
+            new_room = room.move(action)
+            if new_room:
+                self.player.set_location(new_room)
+            else:
                 print "You can't go that way.\n"
+
+    def end(self):
+        print "\nGoodbye!\n"
 
 
 class Player(object):
@@ -28,6 +51,17 @@ class Player(object):
         self.gender = gender
         self.age = age
         self.hair_color = hair_color
+        self.location = None
+        self.moved = True
+
+    def has_moved(self):
+        moved = self.moved
+        self.moved = False
+        return moved
+
+    def set_location(self, location):
+        self.location = location
+        self.moved = True
 
 
 class Map(object):
