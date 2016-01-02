@@ -71,8 +71,8 @@ class Room(object):
                 'west':      ['west',       'w'],
                 'up':        ['up',         'u'],
                 'down':      ['down',       'd'],
-                'in':        ['in'],
-                'out':       ['out'],
+                'in':        ['in',    'inside'],
+                'out':       ['out',  'outside'],
             }
 
         # self.exits is a dict where the key is the direction of the
@@ -88,17 +88,23 @@ class Room(object):
         self.items.append(item)
 
     def add_exit(self, exit, room):
-        for direction, aliases in self.valid_directions.iteritems():
-            if exit.lower() in aliases:
-                self.exits[direction] = room
-                return
-        raise ValueError("invalid direction: %s" % exit)
+        direction = self.direction_from_alias(exit)
+        if not direction:
+            raise ValueError("invalid direction: %s" % exit)
+        self.exits[direction] = room
 
     def possible_exits(self):
         return self.exits.keys()
 
     def move(self, direction):
+        direction = self.direction_from_alias(direction)
         return self.exits.get(direction)
+
+    def direction_from_alias(self, alias):
+        for direction, aliases in self.valid_directions.iteritems():
+            if alias.lower() in aliases:
+                return direction
+        return None
 
     def show_items(self):
         if not self.items:

@@ -198,6 +198,13 @@ class TestRooms(unittest.TestCase):
 
         self.assertIsNone(hallway.move("south"))
 
+    def test_move_by_alias(self):
+        hallway = HallwayRoom()
+        outside = OutsideRoom()
+        hallway.add_exit("north", outside)
+
+        self.assertEqual(hallway.move("n"), outside)
+
 
 class TestItems(unittest.TestCase):
     def test_item_default_desc(self):
