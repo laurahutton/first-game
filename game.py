@@ -21,6 +21,7 @@ class Game(object):
 
             try:
                 action = raw_input("> ")
+                action = action.lower()
             except (EOFError, KeyboardInterrupt):
                 self.end()
                 break
