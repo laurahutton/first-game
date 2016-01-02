@@ -13,7 +13,7 @@ class Game(object):
         while True:
             print self.a_map.describe_room()
             raw_input("> ")
-            a_map.move_to(1)
+            a_map.move(1)
 
 
 class Player(object):
@@ -26,21 +26,19 @@ class Player(object):
 class Map(object):
     def __init__(self, rooms):
         self.rooms = rooms
-        self.start = 0
-        self.location = self.start
+        self.location = rooms[0] if rooms else None
 
     def describe_room(self, verbose=False):
-        room = self.rooms[self.location]
-        return room.describe(verbose)
+        return self.location.describe(verbose)
 
     def possible_exits(self):
-        if self.location+1 >= len(self.rooms):
-            return []
-        return [self.location+1]
+        return self.location.possible_exits()
 
-    def move_to(self, next_room):
-        self.location = next_room
-        return self.rooms[self.location]
+    def move(self, direction):
+        new_room = self.location.move(direction)
+        if new_room:
+            self.location = new_room
+        return new_room
 
 
 class Room(object):
@@ -50,7 +48,30 @@ class Room(object):
         if not self.name:
             self.name = ("Where am I? ...and what"
                          " am I doing in this handbasket?")
+
         self.items = []
+
+        # dict of supported directions. key is the canonical direction
+        # name and the value is a list of aliases for that direction.
+        self.valid_directions = {
+                'north':     ['north',      'n'],
+                'northeast': ['northeast', 'ne'],
+                'northwest': ['northwest', 'nw'],
+                'south':     ['south',      's'],
+                'southeast': ['southeast', 'se'],
+                'southwest': ['southwest', 'sw'],
+                'east':      ['east',       'e'],
+                'west':      ['west',       'w'],
+                'up':        ['up',         'u'],
+                'down':      ['down',       'd'],
+                'in':        ['in'],
+                'out':       ['out'],
+            }
+
+        # self.exits is a dict where the key is the direction of the
+        # exit and the value is the room object that the exit leads to.
+        # only directions listed in self.valid_directions are allowed.
+        self.exits = dict()
 
         # the first time a room is visited, show the full description.
         # subsequent visits only show the room name and any items.
@@ -58,6 +79,19 @@ class Room(object):
 
     def add_item(self, item):
         self.items.append(item)
+
+    def add_exit(self, exit, room):
+        for direction, aliases in self.valid_directions.iteritems():
+            if exit.lower() in aliases:
+                self.exits[direction] = room
+                return
+        raise ValueError("invalid direction: %s" % exit)
+
+    def possible_exits(self):
+        return self.exits.keys()
+
+    def move(self, direction):
+        return self.exits.get(direction)
 
     def show_items(self):
         if not self.items:

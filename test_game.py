@@ -24,6 +24,9 @@ class TestGame(unittest.TestCase):
     def test_room_traversal(self):
         start_room = OutsideRoom()
         end_room = HallwayRoom()
+
+        start_room.add_exit("north", end_room)
+
         end_room.add_item(Item('feather'))
         a_map = Map(rooms=[start_room, end_room])
         self.assertIn(start_room.about, a_map.describe_room())
@@ -31,7 +34,7 @@ class TestGame(unittest.TestCase):
         self.assertTrue(a_map.describe_room().startswith(start_room.name))
 
         possible_exits = a_map.possible_exits()
-        new_room = a_map.move_to(possible_exits[0])
+        new_room = a_map.move(possible_exits[0])
         self.assertIsInstance(new_room, Room)
         self.assertEqual(new_room.about, end_room.about)
         self.assertIn(end_room.about, a_map.describe_room())
@@ -53,8 +56,38 @@ class TestMap(unittest.TestCase):
     def test_map(self):
         a_map = Map(rooms=[])
         self.assertIsInstance(a_map.rooms, list)
-        self.assertEqual(a_map.start, 0)
-        self.assertEqual(a_map.location, a_map.start)
+        self.assertEqual(a_map.location, None)
+
+    def test_map_default_starting_location(self):
+        hallway = HallwayRoom()
+        outside = OutsideRoom()
+        a_map = Map(rooms=[outside, hallway])
+        self.assertIsInstance(a_map.rooms, list)
+        self.assertEqual(a_map.location, outside)
+
+    def test_map_move_new_room(self):
+        hallway = HallwayRoom()
+        outside = OutsideRoom()
+        a_map = Map(rooms=[outside, hallway])
+        outside.add_exit("north", hallway)
+
+        self.assertEqual(a_map.move("north"), hallway)
+        self.assertEqual(a_map.location, hallway)
+
+    def test_map_move_invalid_direction(self):
+        """
+        test that attempting to move in a non-exit direction doesn't
+        change our current location
+        """
+        hallway = HallwayRoom()
+        outside = OutsideRoom()
+        a_map = Map(rooms=[outside, hallway])
+        self.assertEqual(a_map.location, outside)
+
+        outside.add_exit("north", hallway)
+
+        self.assertIsNone(a_map.move("south"))
+        self.assertEqual(a_map.location, outside)
 
 
 class TestRooms(unittest.TestCase):
@@ -107,6 +140,63 @@ class TestRooms(unittest.TestCase):
 
         # full description can be shown again if requested
         self.assertIn(hallway.about, hallway.describe(verbose=True))
+
+    def test_add_exit(self):
+        hallway = HallwayRoom()
+        outside = OutsideRoom()
+
+        before = len(hallway.exits)
+        self.assertNotIn("north", hallway.exits)
+
+        hallway.add_exit("north", outside)
+
+        self.assertEqual(len(hallway.exits), before+1)
+        self.assertIn("north", hallway.exits)
+        self.assertEqual(hallway.exits["north"], outside)
+
+    def test_add_exit_by_alias(self):
+        hallway = HallwayRoom()
+        outside = OutsideRoom()
+
+        before = len(hallway.exits)
+        self.assertNotIn("northwest", hallway.exits)
+
+        hallway.add_exit("nw", outside)
+
+        self.assertEqual(len(hallway.exits), before+1)
+        self.assertIn("northwest", hallway.exits)
+        self.assertEqual(hallway.exits["northwest"], outside)
+
+    def test_add_exit_invalid_direction(self):
+        hallway = HallwayRoom()
+        self.assertRaises(ValueError, hallway.add_exit, "-invalid-", hallway)
+
+    def test_possible_exits(self):
+        """test that possible_exits returns a list of directions"""
+        room = HallwayRoom()
+
+        # initially, there are no exits
+        self.assertEqual(room.possible_exits(), [])
+
+        room.add_exit("north", room)
+        self.assertEqual(room.possible_exits(), ["north"])
+
+        room.add_exit("south", room)
+        self.assertEqual(room.possible_exits(), ["north", "south"])
+
+    def test_move(self):
+        hallway = HallwayRoom()
+        outside = OutsideRoom()
+        hallway.add_exit("north", outside)
+
+        self.assertEqual(hallway.move("north"), outside)
+
+    def test_move_non_exit(self):
+        hallway = HallwayRoom()
+        outside = OutsideRoom()
+        hallway.add_exit("north", outside)
+
+        self.assertIsNone(hallway.move("south"))
 
 
 class TestItems(unittest.TestCase):
