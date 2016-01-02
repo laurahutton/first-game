@@ -12,8 +12,15 @@ class Game(object):
         """event loop"""
         while True:
             print self.a_map.describe_room()
-            raw_input("> ")
-            a_map.move(1)
+
+            try:
+                action = raw_input("> ")
+            except (EOFError, KeyboardInterrupt):
+                print "\nGoodbye!\n"
+                raise SystemExit()
+
+            if a_map.move(action) is None:
+                print "You can't go that way.\n"
 
 
 class Player(object):
@@ -147,10 +154,19 @@ class Guard(Item):
 
 
 if __name__ == "__main__":
+    # initialize rooms
+    outside = OutsideRoom()
+
     hallway = HallwayRoom()
     guard = Guard('Guard 1')
     hallway.add_item(guard)
-    a_map =  Map(rooms=[OutsideRoom(), hallway])
+
+    # connect rooms
+    outside.add_exit("in", hallway)
+    hallway.add_exit("out", outside)
+
+    # initialize game and play
+    a_map = Map(rooms=[outside, hallway])
     player = Player(gender='female', age='74', hair_color='red')
     game = Game(player, a_map)
     game.play()
