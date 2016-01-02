@@ -3,7 +3,7 @@
 import unittest
 
 from game import (
-        Game, Player, Map, OutsideRoom, Item, Guard, HallwayRoom, Room
+        Game, Player, OutsideRoom, Item, Guard, HallwayRoom, Room
         )
 
 
@@ -16,10 +16,9 @@ class TestGame(unittest.TestCase):
         super(TestGame, self).tearDown()
 
     def test_instantiate_game(self):
-        a_map = Map(rooms=[])
-        game = Game(self.player, a_map)
+        game = Game(self.player, rooms=[])
         self.assertEqual(game.player, self.player)
-        self.assertEqual(game.a_map, a_map)
+        self.assertEqual(game.rooms, [])
 
     def test_room_traversal(self):
         start_room = OutsideRoom()
@@ -28,19 +27,18 @@ class TestGame(unittest.TestCase):
         start_room.add_exit("north", end_room)
 
         end_room.add_item(Item('feather'))
-        a_map = Map(rooms=[start_room, end_room])
-        self.assertIn(start_room.about, a_map.describe_room())
 
-        self.assertTrue(a_map.describe_room().startswith(start_room.name))
+        self.assertIn(start_room.about, start_room.describe())
+        self.assertTrue(start_room.describe().startswith(start_room.name))
 
-        possible_exits = a_map.possible_exits()
-        new_room = a_map.move(possible_exits[0])
+        possible_exits = start_room.possible_exits()
+        new_room = start_room.move(possible_exits[0])
         self.assertIsInstance(new_room, Room)
         self.assertEqual(new_room.about, end_room.about)
-        self.assertIn(end_room.about, a_map.describe_room())
-        self.assertIn('feather', a_map.describe_room())
+        self.assertIn(end_room.about, new_room.describe())
+        self.assertIn('feather', new_room.describe())
 
-        possible_exits = a_map.possible_exits()
+        possible_exits = new_room.possible_exits()
         self.assertEqual(possible_exits, [])
 
 
@@ -77,44 +75,6 @@ class TestPlayer(unittest.TestCase):
 
         self.assertEqual(player.location, hallway)
         self.assertTrue(player.moved)
-
-
-class TestMap(unittest.TestCase):
-    def test_map(self):
-        a_map = Map(rooms=[])
-        self.assertIsInstance(a_map.rooms, list)
-        self.assertEqual(a_map.location, None)
-
-    def test_map_default_starting_location(self):
-        hallway = HallwayRoom()
-        outside = OutsideRoom()
-        a_map = Map(rooms=[outside, hallway])
-        self.assertIsInstance(a_map.rooms, list)
-        self.assertEqual(a_map.location, outside)
-
-    def test_map_move_new_room(self):
-        hallway = HallwayRoom()
-        outside = OutsideRoom()
-        a_map = Map(rooms=[outside, hallway])
-        outside.add_exit("north", hallway)
-
-        self.assertEqual(a_map.move("north"), hallway)
-        self.assertEqual(a_map.location, hallway)
-
-    def test_map_move_invalid_direction(self):
-        """
-        test that attempting to move in a non-exit direction doesn't
-        change our current location
-        """
-        hallway = HallwayRoom()
-        outside = OutsideRoom()
-        a_map = Map(rooms=[outside, hallway])
-        self.assertEqual(a_map.location, outside)
-
-        outside.add_exit("north", hallway)
-
-        self.assertIsNone(a_map.move("south"))
-        self.assertEqual(a_map.location, outside)
 
 
 class TestRooms(unittest.TestCase):

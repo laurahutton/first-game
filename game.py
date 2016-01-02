@@ -4,13 +4,13 @@ from utils import a_or_an
 
 
 class Game(object):
-    def __init__(self, player, a_map):
+    def __init__(self, player, rooms):
         self.player = player
-        self.a_map = a_map
+        self.rooms = rooms
 
         if not self.player.location:
-            if self.a_map.rooms:
-                self.player.location = self.a_map.rooms[0]
+            if self.rooms:
+                self.player.location = self.rooms[0]
 
     def play(self):
         """event loop"""
@@ -65,24 +65,6 @@ class Player(object):
     def set_location(self, location):
         self.location = location
         self.moved = True
-
-
-class Map(object):
-    def __init__(self, rooms):
-        self.rooms = rooms
-        self.location = rooms[0] if rooms else None
-
-    def describe_room(self, verbose=False):
-        return self.location.describe(verbose)
-
-    def possible_exits(self):
-        return self.location.possible_exits()
-
-    def move(self, direction):
-        new_room = self.location.move(direction)
-        if new_room:
-            self.location = new_room
-        return new_room
 
 
 class Room(object):
@@ -209,7 +191,6 @@ if __name__ == "__main__":
     hallway.add_exit("out", outside)
 
     # initialize game and play
-    a_map = Map(rooms=[outside, hallway])
     player = Player(gender='female', age='74', hair_color='red')
-    game = Game(player, a_map)
+    game = Game(player, rooms=[outside, hallway])
     game.play()
