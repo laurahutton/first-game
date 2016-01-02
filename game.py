@@ -3,14 +3,39 @@
 from utils import a_or_an
 
 
+class UnknownCommand(Exception):
+    pass
+
+
+# dict of supported directions. key is the canonical direction
+# name and the value is a list of aliases for that direction.
+DIRECTIONS = {
+    'north':     ['north',      'n'],
+    'northeast': ['northeast', 'ne'],
+    'northwest': ['northwest', 'nw'],
+    'south':     ['south',      's'],
+    'southeast': ['southeast', 'se'],
+    'southwest': ['southwest', 'sw'],
+    'east':      ['east',       'e'],
+    'west':      ['west',       'w'],
+    'up':        ['up',         'u'],
+    'down':      ['down',       'd'],
+    'in':        ['in',    'inside'],
+    'out':       ['out',  'outside'],
+    }
+
+
 class Game(object):
-    def __init__(self, player, rooms):
+    def __init__(self, player, rooms, script=None):
         self.player = player
         self.rooms = rooms
 
         if not self.player.location:
             if self.rooms:
                 self.player.set_location(self.rooms[0])
+
+        # list of commands used for testing
+        self.script = script
 
     def play(self):
         """event loop"""
@@ -20,34 +45,76 @@ class Game(object):
                 print room.describe()
 
             try:
-                action = raw_input("> ")
-                action = action.lower()
-            except (EOFError, KeyboardInterrupt):
-                self.end()
-                break
-
-            if not action:
+                action = self.next_action()
+            except UnknownCommand:
+                print "I don't understand.\n"
                 continue
 
-            if action == "quit" or action == "q":
+            if action == "quit":
                 self.end()
                 break
 
-            if action == "look" or action == "l":
+            elif action == "look":
                 print room.describe(verbose=True)
-                continue
 
-            if room.normalize_direction(action):
+            elif action in DIRECTIONS:
                 new_room = room.move(action)
                 if new_room:
                     self.player.set_location(new_room)
                 else:
                     print "You can't go that way.\n"
-            else:
-                print "I don't understand.\n"
+
+            elif action == "help":
+                self.help()
+
+    def help(self):
+        commands = '\n'.join(self.valid_commands())
+        print "Valid commands are:\n%s" % commands
+
+    def next_action(self):
+        """
+        fetch the next command from either the interactive user or a
+        test script and return a canonical command.  skip any empty
+        input.
+        """
+        while True:
+            try:
+                if self.script is not None:
+                    action = self.script.pop(0)
+                else:
+                    action = raw_input("> ")
+                if action:
+                    return self.parse_action(action)
+            except (EOFError, KeyboardInterrupt, IndexError):
+                self.end()
+
+    def parse_action(self, action):
+        commands = self.valid_commands()
+
+        try:
+            return commands[action.lower()]
+        except KeyError:
+            raise UnknownCommand(action)
+
+    def valid_commands(self):
+        commands = {
+            'quit': 'quit',
+            'q':    'quit',
+            'look': 'look',
+            'l':    'look',
+            'help': 'help',
+            }
+
+        for direction, aliases in DIRECTIONS.iteritems():
+            for alias in aliases:
+                commands.update({alias: direction})
+                commands.update({direction: direction})
+        return commands
+
 
     def end(self):
         print "\nGoodbye!\n"
+        raise SystemExit()
 
 
 class Player(object):
@@ -78,26 +145,9 @@ class Room(object):
 
         self.items = []
 
-        # dict of supported directions. key is the canonical direction
-        # name and the value is a list of aliases for that direction.
-        self.valid_directions = {
-            'north':     ['north',      'n'],
-            'northeast': ['northeast', 'ne'],
-            'northwest': ['northwest', 'nw'],
-            'south':     ['south',      's'],
-            'southeast': ['southeast', 'se'],
-            'southwest': ['southwest', 'sw'],
-            'east':      ['east',       'e'],
-            'west':      ['west',       'w'],
-            'up':        ['up',         'u'],
-            'down':      ['down',       'd'],
-            'in':        ['in',    'inside'],
-            'out':       ['out',  'outside'],
-            }
-
         # self.exits is a dict where the key is the direction of the
         # exit and the value is the room object that the exit leads to.
-        # only directions listed in self.valid_directions are allowed.
+        # only directions listed in DIRECTIONS are allowed.
         self.exits = dict()
 
         # the first time a room is visited, show the full description.
@@ -121,7 +171,7 @@ class Room(object):
         return self.exits.get(direction)
 
     def normalize_direction(self, alias):
-        for direction, aliases in self.valid_directions.iteritems():
+        for direction, aliases in DIRECTIONS.iteritems():
             if alias.lower() in aliases:
                 return direction
         return None

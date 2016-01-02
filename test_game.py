@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import StringIO
+import sys
 import unittest
 
 from game import (
-        Game, Player, OutsideRoom, Item, Guard, HallwayRoom, Room
+        Game, Player, OutsideRoom, Item, Guard, HallwayRoom, Room,
+        UnknownCommand,
         )
 
 
@@ -11,6 +14,7 @@ class TestGame(unittest.TestCase):
     def setUp(self):
         super(TestGame, self).setUp()
         self.player = Player(gender='male', age='10', hair_color='blue')
+        self.game = Game(self.player, rooms=[OutsideRoom()])
 
     def tearDown(self):
         super(TestGame, self).tearDown()
@@ -40,6 +44,73 @@ class TestGame(unittest.TestCase):
 
         possible_exits = new_room.possible_exits()
         self.assertEqual(possible_exits, [])
+
+    def test_parse_action_direction(self):
+        self.assertEqual(self.game.parse_action("ne"), "northeast")
+
+    def test_parse_action_command(self):
+        self.assertEqual(self.game.parse_action("q"), "quit")
+
+    def test_parse_action_unknown_command(self):
+        self.assertRaises(UnknownCommand, self.game.parse_action, "-invalid-")
+
+
+class TestScript(unittest.TestCase):
+    def setUp(self):
+        super(TestScript, self).setUp()
+        self.player = Player(gender='male', age='10', hair_color='blue')
+
+        # capture stdout from game loop
+        self.stdout = StringIO.StringIO()
+        self._orig_stdout = sys.stdout
+        sys.stdout = self.stdout
+
+        # initialize rooms
+        outside = OutsideRoom()
+
+        hallway = HallwayRoom()
+        guard = Guard('Guard 1')
+        hallway.add_item(guard)
+
+        # connect rooms
+        outside.add_exit("in", hallway)
+        hallway.add_exit("out", outside)
+
+        # initialize game and play
+        player = Player(gender='female', age='74', hair_color='red')
+
+        self.game = Game(
+            player,
+            rooms=[outside, hallway],
+            script=['quit']
+            )
+
+    def tearDown(self):
+        sys.stdout = self._orig_stdout
+        super(TestScript, self).tearDown()
+
+    def test_script(self):
+        self.assertRaises(SystemExit, self.game.play)
+
+        output = self.stdout.getvalue()
+        self.assertIn("Outside", output)
+        self.assertIn("Goodbye!", output)
+
+    def test_script_invalid_command(self):
+        self.game.script = ['-invalid-']
+        self.assertRaises(SystemExit, self.game.play)
+        self.assertIn("I don't understand", self.stdout.getvalue())
+
+    def test_script_1(self):
+        self.game.script = ['in', 'q']
+        self.assertRaises(SystemExit, self.game.play)
+
+        output = self.stdout.getvalue()
+        self.assertTrue(output.startswith("Outside"))
+        self.assertIn("Hallway", output)
+        self.assertIn("Guard 1", output)
+
+        self.assertEqual(self.game.player.location, self.game.rooms[1])
 
 
 class TestPlayer(unittest.TestCase):
