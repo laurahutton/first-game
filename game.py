@@ -36,11 +36,14 @@ class Game(object):
                 print room.describe(verbose=True)
                 continue
 
-            new_room = room.move(action)
-            if new_room:
-                self.player.set_location(new_room)
+            if room.normalize_direction(action):
+                new_room = room.move(action)
+                if new_room:
+                    self.player.set_location(new_room)
+                else:
+                    print "You can't go that way.\n"
             else:
-                print "You can't go that way.\n"
+                print "I don't understand.\n"
 
     def end(self):
         print "\nGoodbye!\n"
@@ -122,7 +125,7 @@ class Room(object):
         self.items.append(item)
 
     def add_exit(self, exit, room):
-        direction = self.direction_from_alias(exit)
+        direction = self.normalize_direction(exit)
         if not direction:
             raise ValueError("invalid direction: %s" % exit)
         self.exits[direction] = room
@@ -131,10 +134,10 @@ class Room(object):
         return self.exits.keys()
 
     def move(self, direction):
-        direction = self.direction_from_alias(direction)
+        direction = self.normalize_direction(direction)
         return self.exits.get(direction)
 
-    def direction_from_alias(self, alias):
+    def normalize_direction(self, alias):
         for direction, aliases in self.valid_directions.iteritems():
             if alias.lower() in aliases:
                 return direction
