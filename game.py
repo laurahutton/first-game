@@ -116,7 +116,6 @@ class Game(object):
                 commands.update({direction: direction})
         return commands
 
-
     def end(self):
         print "\nGoodbye!\n"
         raise SystemExit()
@@ -150,6 +149,14 @@ class Player(object):
                 a_or_an(str(i)) for i in self.inventory
                 )
         return "You are empty handed."
+
+    def drop(self, unwanted):
+        for item in self.inventory:
+            if item.name == unwanted:
+                self.inventory.remove(item)
+                if self.location:
+                    self.location.add_item(item)
+                return
 
 
 class Room(object):

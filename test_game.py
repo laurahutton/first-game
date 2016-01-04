@@ -160,6 +160,43 @@ class TestPlayer(unittest.TestCase):
                 )
         self.assertIn("an elephant", player.show_inventory())
 
+    def test_drop_unknown_inventory_item(self):
+        player = Player(
+                gender='male',
+                age='10',
+                hair_color='blue',
+                inventory=[Item('elephant')],
+                )
+        player.location = OutsideRoom()
+
+        loc_items = len(player.location.items)
+
+        self.assertEqual(len(player.inventory), 1)
+        player.drop('rock')
+        self.assertEqual(len(player.inventory), 1)
+
+        self.assertEqual(len(player.location.items), loc_items)
+
+    def test_drop_inventory_item(self):
+        """
+        test that dropping an item leaves the item in the current
+        location
+        """
+        player = Player(
+                gender='male',
+                age='10',
+                hair_color='blue',
+                inventory=[Item('elephant')],
+                )
+        self.assertIn("an elephant", player.show_inventory())
+
+        player.location = OutsideRoom()
+        self.assertNotIn("an elephant", player.location.show_items())
+
+        player.drop('elephant')
+        self.assertNotIn("an elephant", player.show_inventory())
+        self.assertIn("elephant", player.location.show_items())
+
 
 class TestRooms(unittest.TestCase):
     def test_outside(self):
