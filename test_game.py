@@ -147,6 +147,19 @@ class TestPlayer(unittest.TestCase):
         self.assertEqual(player.location, hallway)
         self.assertTrue(player.moved)
 
+    def test_empty_inventory(self):
+        player = Player(gender='male', age='10', hair_color='blue')
+        self.assertEqual(player.show_inventory(), "You are empty handed.")
+
+    def test_inventory(self):
+        player = Player(
+                gender='male',
+                age='10',
+                hair_color='blue',
+                inventory=[Item('elephant')],
+                )
+        self.assertIn("an elephant", player.show_inventory())
+
 
 class TestRooms(unittest.TestCase):
     def test_outside(self):

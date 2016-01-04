@@ -57,6 +57,9 @@ class Game(object):
             elif action == "look":
                 print room.describe(verbose=True)
 
+            elif action == "inventory":
+                print self.player.show_inventory()
+
             elif action in DIRECTIONS:
                 new_room = room.move(action)
                 if new_room:
@@ -103,6 +106,8 @@ class Game(object):
             'look': 'look',
             'l':    'look',
             'help': 'help',
+            'i':    'inventory',
+            'inventory': 'inventory',
             }
 
         for direction, aliases in DIRECTIONS.iteritems():
@@ -118,10 +123,15 @@ class Game(object):
 
 
 class Player(object):
-    def __init__(self, gender, age, hair_color):
+    def __init__(self, gender, age, hair_color, inventory=None):
         self.gender = gender
         self.age = age
         self.hair_color = hair_color
+
+        if inventory is None:
+            inventory = []
+        self.inventory = inventory
+
         self.location = None
         self.moved = True
 
@@ -133,6 +143,13 @@ class Player(object):
     def set_location(self, location):
         self.location = location
         self.moved = True
+
+    def show_inventory(self):
+        if self.inventory:
+            return "You are carrying:\n" + '\n'.join(
+                a_or_an(str(i)) for i in self.inventory
+                )
+        return "You are empty handed."
 
 
 class Room(object):
@@ -194,8 +211,7 @@ class Room(object):
 class OutsideRoom(Room):
     def __init__(self):
         super(OutsideRoom, self).__init__()
-        self.about = ("You are standing outside the museum with"
-                      " only a rock, a grappling hook, and a gun.")
+        self.about = "You are standing outside the museum."
 
 
 class HallwayRoom(Room):
@@ -242,6 +258,11 @@ if __name__ == "__main__":
     hallway.add_exit("out", outside)
 
     # initialize game and play
-    player = Player(gender='female', age='74', hair_color='red')
+    player = Player(
+        gender='female',
+        age='74',
+        hair_color='red',
+        inventory=[Item('rock'), Item('grappling hook'), Item('gun')],
+        )
     game = Game(player, rooms=[outside, hallway])
     game.play()
